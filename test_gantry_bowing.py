@@ -233,7 +233,7 @@ def main():
 
     clear_bed_mesh()
 
-    send_gcode(QGL_CMD)
+    send_gcode(QGL_CMD, timeout=None)
 
     send_gcode('SET_FRAME_COMP enable=0')
 
