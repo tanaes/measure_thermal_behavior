@@ -183,7 +183,7 @@ def query_bed_mesh(retries=60):
         print('.', end='', flush=True)
         resp = get(url).json()['result']
         mesh = resp['status']['bed_mesh']
-        if mesh != [[]]:
+        if mesh['mesh_matrix'] != [[]]:
             mesh_received = True
             print('DONE!', flush=True)
             return mesh

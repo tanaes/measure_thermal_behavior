@@ -7,17 +7,17 @@ import argparse
 from os.path import splitext, join
 
 def import_mesh(mesh):
-    if all([x in mesh.keys() for x in ['mesh_min', 'mesh_max', 'z_positions']]):
+    if all([x in mesh.keys() for x in ['mesh_min', 'mesh_max', 'probed_matrix']]):
         mesh_min = mesh['mesh_min']
         mesh_max = mesh['mesh_max']
-        z_positions = mesh['z_positions']
+        probed_matrix = mesh['probed_matrix']
         
-        n_y_points = len(z_positions)
-        n_x_points = len(z_positions[0])
+        n_y_points = len(probed_matrix)
+        n_x_points = len(probed_matrix[0])
         
         x_coords = np.linspace(mesh_min[0], mesh_max[0], n_x_points, float)
         y_coords = np.linspace(mesh_min[1], mesh_max[1], n_y_points, float)
-        mesh_points = np.array(z_positions, float)
+        mesh_points = np.array(probed_matrix, float)
         
         return {'x': x_coords, 'y':y_coords, 'mesh':mesh_points}
 
