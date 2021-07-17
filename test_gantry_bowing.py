@@ -137,7 +137,7 @@ def gantry_leveled():
     resp = get(url).json()['result']
     return resp['status']['quad_gantry_level']['applied']
 
-def qgl(retries=3):
+def qgl(retries=30):
     if gantry_leveled():
         print("Gantry already level. ")
         return True
@@ -150,7 +150,7 @@ def qgl(retries=3):
                 return True
             else:
                 print(".", end='')
-                sleep(60)
+                sleep(10)
 
     raise RuntimeError("Could not level gantry")
 
@@ -172,7 +172,7 @@ def take_bed_mesh():
 
     return(mesh)
 
-def query_bed_mesh(retries=5):
+def query_bed_mesh(retries=60):
     url = BASE_URL + '/printer/objects/query?bed_mesh'
     mesh_received = False
     for attempt in range(retries):
@@ -184,7 +184,7 @@ def query_bed_mesh(retries=5):
             print('DONE!')
             return mesh
         else:
-            sleep(60)
+            sleep(10)
     if not mesh_received:
         raise RuntimeError("Could not retrieve mesh")
 
