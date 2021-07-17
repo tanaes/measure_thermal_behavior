@@ -23,7 +23,7 @@ HE_TEMPERATURE = 100                # extruder temperature for measurements
 PREHEAT_TIME = 10                   # Min time to preheat before homing and QGL, in minutes
 MEASURE_INTERVAL = 1
 N_SAMPLES = 3
-HOT_DURATION = 0.2                   # time after bed temp reached to continue
+HOT_DURATION = 0.1                   # time after bed temp reached to continue
                                     # measuring, in hours
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL
@@ -338,7 +338,7 @@ def main():
               'temp_data': temps}
 
     with open(DATA_FILENAME, "w") as out_file:
-        json.dump(output, out_file)
+        json.dump(output, out_file, indent=4, sort_keys=True, default=str)
 
     set_bedtemp()
     set_hetemp()
