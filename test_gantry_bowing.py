@@ -265,7 +265,7 @@ def measure(temps):
     else:
         t_minus = ((last_measurement + timedelta(minutes=MEASURE_INTERVAL))-now).seconds
         if now >= start_time:
-            total_remaining = (start_time + timedelta(hours=HOT_DURATION+COOL_DURATION)-now).seconds/60
+            total_remaining = (start_time + timedelta(hours=HOT_DURATION)-now).seconds/60
             print('%imin remaining. ' % total_remaining, end='')
         print('Next measurement in %02is' % t_minus, end='\r', flush=True)
 
