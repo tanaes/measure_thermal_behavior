@@ -73,7 +73,8 @@ def gather_metadata():
         'user': {
             'id': USER_ID,
             'printer': PRINTER_MODEL,
-            'measure_type': MEASURE_TYPE,
+            'home_type': HOME_TYPE,
+            'probe_type': PROBE_TYPE,
             'notes': NOTES,
             'timestamp': datetime.now().strftime(
                 "%Y-%m-%d_%H-%M-%S")
