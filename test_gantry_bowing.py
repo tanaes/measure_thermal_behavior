@@ -112,12 +112,6 @@ def send_gcode(cmd='', retries=1):
             return True
     return False
 
-def qgl(cmd):
-    gantry_leveled = False
-    gantry_leveled = send_gcode(cmd, retries=3)
-    if not gantry_leveled:
-        raise RuntimeError("Gantry not leveled")
-
 def set_bedtemp(t=0):
     temp_set = False
     cmd = 'SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=%.1f' % t
@@ -238,7 +232,8 @@ def main():
         raise RuntimeError("Failed to home. Aborted.")
 
     clear_bed_mesh()
-    qgl(QGL_CMD)
+
+    send_gcode(QGL_CMD)
 
     send_gcode('SET_FRAME_COMP enable=0')
 
