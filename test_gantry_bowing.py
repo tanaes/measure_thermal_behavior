@@ -20,8 +20,11 @@ BASE_URL = 'http://127.0.0.1'       # printer URL (e.g. http://192.168.1.15)
 BED_TEMPERATURE = 105               # bed temperature for measurements
 HE_TEMPERATURE = 100                # extruder temperature for measurements
 PREHEAT_TIME = 10                   # Min time to preheat before homing and QGL, in minutes
+MEASURE_INTERVAL = 1
+N_SAMPLES = 3
 HOT_DURATION = 2                    # time after bed temp reached to continue
                                     # measuring, in hours
+MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL
 
 # chamber thermistor config name. Change to match your own, or "" if none
@@ -187,6 +190,43 @@ def wait_for_bedtemp():
     start_time = datetime.now()
     print('\nBed temp reached')
 
+def collect_datapoint(index):
+    if not send_gcode(MEASURE_GCODE):
+        set_bedtemp()
+        set_hetemp()
+        err = 'MEASURE_GCODE (%s) failed. Stopping.' % MEASURE_GCODE
+        raise RuntimeError(err)
+    stamp = datetime.now()
+    pos = query_mcu_z_pos()
+    t_sensors = query_temp_sensors()
+    datapoint =  {
+        index : {
+            'timestamp': stamp.strftime("%Y/%m/%d-%H:%M:%S"),
+            'mcu_z' : pos, 
+            **t_sensors
+            }
+    }
+    return datapoint
+
+def measure(temps):
+    global last_measurement, index, start_time
+    now = datetime.now()
+    if (now - last_measurement) >= timedelta(minutes=MEASURE_INTERVAL):
+        last_measurement = now
+        print('\r', ' '*50,end='\r')
+        print('Measuring (#%i)...' % index, end='',flush=True)
+        for n in range(N_SAMPLES):
+            print('%i/%i...' % (n+1, N_SAMPLES), end='', flush=True)
+            temps.append(collect_datapoint(index))
+        index += 1
+        print('DONE', " "*20)
+    else:
+        t_minus = ((last_measurement + timedelta(minutes=MEASURE_INTERVAL))-now).seconds
+        if now >= start_time:
+            total_remaining = (start_time + timedelta(hours=HOT_DURATION+COOL_DURATION)-now).seconds/60
+            print('%imin remaining. ' % total_remaining, end='')
+        print('Next measurement in %02is' % t_minus, end='\r', flush=True)
+
 def main():
     global last_measurement, start_time
     metadata = gather_metadata()
@@ -220,7 +260,13 @@ def main():
     print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION / 60))
     # wait for heat soak
 
-    sleep(3600*HOT_DURATION)
+    temps = []
+    while(1):
+        now = datetime.now()
+        if (now - start_time) >= timedelta(hours=HOT_DURATION):
+            break
+        temps = measure(temps)
+        sleep(0.2)
 
     # Take hot mesh
     take_bed_mesh()
@@ -237,7 +283,8 @@ def main():
     # write output
     output = {'metadata': metadata,
               'cold_mesh': cold_data,
-              'hot_mesh': hot_data}
+              'hot_mesh': hot_data,
+              'temp_data': temps}
 
     with open(DATA_FILENAME, "w") as out_file:
         json.dump(output, out_file)
