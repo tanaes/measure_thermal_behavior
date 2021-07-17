@@ -77,7 +77,6 @@ def gather_metadata():
         'script':{
             'data_structure': 3,
             'hot_duration': HOT_DURATION,
-            'cool_duration': COOL_DURATION
         },
         'z_axis': {
             'step_dist' : step_distance,
