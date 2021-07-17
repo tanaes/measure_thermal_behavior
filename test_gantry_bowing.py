@@ -181,7 +181,7 @@ def query_bed_mesh(retries=60):
         mesh = resp['status']['bed_mesh']['probed_matrix']
         if mesh != [[]]:
             mesh_received = True
-            print('DONE!')
+            print('DONE!', flush=True)
             return mesh
         else:
             sleep(10)
@@ -272,7 +272,7 @@ def measure():
 def main():
     global last_measurement, start_time, temps
     metadata = gather_metadata()
-    print("Starting!\nHoming...", end='')
+    print("Starting!\nHoming...", end='', flush=True)
     # Home all
     if send_gcode('G28'):
         print("DONE")
@@ -285,7 +285,7 @@ def main():
 
     last_measurement = datetime.now()
 
-    print("Homing...", end='')
+    print("Homing...", end='', flush=True)
     if send_gcode('G28'):
         print("DONE")
     else:
@@ -334,8 +334,7 @@ def main():
     # write output
     output = {'metadata': metadata,
               'cold_mesh': cold_data,
-              'hot_mesh': hot_data,
-              'temp_data': temps}
+              'hot_mesh': hot_data}
 
     with open(DATA_FILENAME, "w") as out_file:
         json.dump(output, out_file, indent=4, sort_keys=True, default=str)
