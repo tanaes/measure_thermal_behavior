@@ -100,6 +100,11 @@ def write_metadata(meta):
                 dataout.write('# %s=%s\n' % (item, meta[section][item]))
         dataout.write('### METADATA END ###\n')
 
+def send_gcode_nowait(cmd=''):
+    url = BASE_URL +  "/printer/gcode/script?script=%s" % cmd
+    post(url)
+    return True
+
 def send_gcode(cmd='', retries=1, timeout=30):
     url = BASE_URL + "/printer/gcode/script?script=%s" % cmd
     resp = post(url, timeout=timeout)
@@ -109,8 +114,6 @@ def send_gcode(cmd='', retries=1, timeout=30):
             success = 'ok' in resp.json()['result']
         except KeyError:
             print("G-code command '%s', failed. Retry %i/%i" % (cmd, i+1, retries))
-        except JSONDecodeError:
-            print(resp)
         else:
             return True
     return False
@@ -129,6 +132,23 @@ def set_hetemp(t=0):
     if not temp_set:
         raise RuntimeError("HE temp could not be set.")
 
+def gantry_leveled():
+    url = BASE_URL + '/printer/objects/query?quad_gantry_level'
+    resp = get(url).json()['result']
+    return resp['status']['quad_gantry_level']['applied']
+
+def qgl(retries=3):
+    if not gantry_leveled():
+        send_gcode_nowait(QGL_CMD)
+
+    for attempt in range(retries):
+        if gantry_leveled():
+            return True
+        else:
+            sleep(60)
+
+    raise RuntimeError("Could not level gantry")
+
 def clear_bed_mesh():
     mesh_cleared = False
     cmd = 'BED_MESH_CLEAR'
@@ -137,16 +157,18 @@ def clear_bed_mesh():
         raise RuntimeError("Could not clear mesh.")
 
 def take_bed_mesh():
-    mesh_sent = False
+    mesh_received = False
     cmd = 'BED_MESH_CALIBRATE'
-    send_gcode(cmd, retries=1, timeout=None)
-    if not mesh_sent:
-        raise RuntimeError("Could not calibrate bed.")
+    send_gcode_nowait(cmd)
 
-def query_bed_mesh():
+    mesh = query_bed_mesh()
+
+    return(mesh)
+
+def query_bed_mesh(retries=5):
     url = BASE_URL + '/printer/objects/query?bed_mesh'
     mesh_received = False
-    for attempt in range(3):
+    for attempt in range(retries):
         resp = get(url).json()['result']
         mesh = resp['probed_matrix']
         if mesh != [[]]:
@@ -236,7 +258,7 @@ def main():
 
     clear_bed_mesh()
 
-    send_gcode(QGL_CMD, timeout=None)
+    qgl()
 
     send_gcode('SET_FRAME_COMP enable=0')
 
