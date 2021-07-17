@@ -109,7 +109,7 @@ def send_gcode(cmd='', retries=1, timeout=30):
         except KeyError:
             print("G-code command '%s', failed. Retry %i/%i" % (cmd, i+1, retries))
         else:
-            return True
+            print(resp)
     return False
 
 def set_bedtemp(t=0):
