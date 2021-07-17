@@ -23,7 +23,7 @@ HE_TEMPERATURE = 100                # extruder temperature for measurements
 PREHEAT_TIME = 10                   # Min time to preheat before homing and QGL, in minutes
 MEASURE_INTERVAL = 1
 N_SAMPLES = 3
-HOT_DURATION = 2                    # time after bed temp reached to continue
+HOT_DURATION = 0.2                   # time after bed temp reached to continue
                                     # measuring, in hours
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL
@@ -260,6 +260,12 @@ def main():
 
     qgl()
 
+    last_measurement = datetime.now()
+    if send_gcode('G28'):
+        print("DONE")
+    else:
+        raise RuntimeError("Failed to home. Aborted.")
+
     send_gcode('SET_FRAME_COMP enable=0')
 
     set_bedtemp(BED_TEMPERATURE)
@@ -277,7 +283,7 @@ def main():
                  'temps': cold_temps,
                  'mesh': cold_mesh}
 
-    print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION / 60))
+    print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION * 60))
     # wait for heat soak
 
     temps = []
