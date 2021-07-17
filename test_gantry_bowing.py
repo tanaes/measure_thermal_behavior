@@ -138,14 +138,19 @@ def gantry_leveled():
     return resp['status']['quad_gantry_level']['applied']
 
 def qgl(retries=3):
+    if gantry_leveled():
+        print("Gantry already level. ")
+        return True
     if not gantry_leveled():
+        print("Leveling gantry...", end='')
         send_gcode_nowait(QGL_CMD)
-
-    for attempt in range(retries):
-        if gantry_leveled():
-            return True
-        else:
-            sleep(60)
+        for attempt in range(retries):
+            if gantry_leveled():
+                print("DONE!")
+                return True
+            else:
+                print(".", end='')
+                sleep(60)
 
     raise RuntimeError("Could not level gantry")
 
@@ -159,6 +164,8 @@ def clear_bed_mesh():
 def take_bed_mesh():
     mesh_received = False
     cmd = 'BED_MESH_CALIBRATE'
+
+    print("Taking bed mesh measurement...", end='')
     send_gcode_nowait(cmd)
 
     mesh = query_bed_mesh()
@@ -169,10 +176,12 @@ def query_bed_mesh(retries=5):
     url = BASE_URL + '/printer/objects/query?bed_mesh'
     mesh_received = False
     for attempt in range(retries):
+        print('.', end='')
         resp = get(url).json()['result']
         mesh = resp['status']['bed_mesh']['probed_matrix']
         if mesh != [[]]:
             mesh_received = True
+            print('DONE!')
             return mesh
         else:
             sleep(60)
@@ -275,6 +284,8 @@ def main():
     qgl()
 
     last_measurement = datetime.now()
+
+    print("Starting!\nHoming...", end='')
     if send_gcode('G28'):
         print("DONE")
     else:
