@@ -197,6 +197,20 @@ def query_temp_sensors():
         'he_temp': he_current,
         'he_target': he_target}
 
+def get_cached_gcode(n=1):
+    url = BASE_URL + "/server/gcode_store?count=%i" % n
+    resp = get(url).json()['result']['gcode_store']
+    return resp
+
+def query_mcu_z_pos():
+    send_gcode(cmd='get_position')
+    gcode_cache = get_cached_gcode(n=1)
+    for msg in gcode_cache:
+        pos_matches = list(MCU_Z_POS_RE.finditer(msg['message']))
+        if len(pos_matches) > 1:
+            return int(pos_matches[0].group())
+    return None
+
 def wait_for_bedtemp():
     global start_time
     at_temp = False
