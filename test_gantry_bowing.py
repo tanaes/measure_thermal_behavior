@@ -5,13 +5,13 @@ from time import sleep
 from requests import get, post
 import re
 import json
-from json.decoder import JSONDecodeError
 
 ######### META DATA #################
 # For data collection organizational purposes
 USER_ID = ''            # e.g. Discord handle
 PRINTER_MODEL = ''      # e.g. 'voron_v2_350'
-MEASURE_TYPE = ''       # e.g. 'nozzle_pin', 'microswitch_probe', etc.
+HOME_TYPE = ''          # e.g. 'nozzle_pin', 'microswitch_probe', etc.
+PROBE_TYPE = ''         # e.g. 'klicky', 'omron', 'bltouch', etc.
 NOTES = ''              # anything note-worthy about this particular run, no "=" characters
 #####################################
 
@@ -23,7 +23,7 @@ HE_TEMPERATURE = 100                # extruder temperature for measurements
 PREHEAT_TIME = 10                   # Min time to preheat before homing and QGL, in minutes
 MEASURE_INTERVAL = 1
 N_SAMPLES = 3
-HOT_DURATION = 0.1                   # time after bed temp reached to continue
+HOT_DURATION = 2                   # time after bed temp reached to continue
                                     # measuring, in hours
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL
