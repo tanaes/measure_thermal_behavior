@@ -8,12 +8,12 @@ import json
 
 ######### META DATA #################
 # For data collection organizational purposes
-USER_ID = 'whoppingpochard'            # e.g. Discord handle
-PRINTER_MODEL = 'voron_v2_350'      # e.g. 'voron_v2_350'
-HOME_TYPE = 'nozzle_pin'          # e.g. 'nozzle_pin', 'microswitch_probe', etc.
-PROBE_TYPE = 'klicky'         # e.g. 'klicky', 'omron', 'bltouch', etc.
-X_RAILS = '2x_mgn9'            # e.g. '1x_mgn12_front', '2x_mgn9'
-BACKERS = 'steel_x_y'            # e.g. 'steel_x_y', 'Ti_x-steel_y', 'mgn9_y'
+USER_ID = ''            # e.g. Discord handle
+PRINTER_MODEL = ''      # e.g. 'voron_v2_350'
+HOME_TYPE = ''          # e.g. 'nozzle_pin', 'microswitch_probe', etc.
+PROBE_TYPE = ''         # e.g. 'klicky', 'omron', 'bltouch', etc.
+X_RAILS = ''            # e.g. '1x_mgn12_front', '2x_mgn9'
+BACKERS = ''            # e.g. 'steel_x_y', 'Ti_x-steel_y', 'mgn9_y'
 NOTES = ''              # anything note-worthy about this particular run, no "=" characters
 #####################################
 
