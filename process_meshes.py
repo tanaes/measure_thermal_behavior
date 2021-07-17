@@ -142,10 +142,9 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
 def plot_mesh(mesh, title=''):
     fig, ax = plt.subplots()
     data = mesh['mesh']
-    norm = None
-    if data.min() <= 0 and data.max() > 0:
-        absmax = max(abs(data.min()), abs(data.max()))
-        norm = TwoSlopeNorm(vmin=-absmax, vcenter=0, vmax=absmax)
+    # absmax = max(abs(data.min()), abs(data.max()))
+    absmax = 0.1
+    norm = TwoSlopeNorm(vmin=-absmax, vcenter=0, vmax=absmax)
     im, cbar = heatmap(mesh['mesh'], mesh['x'], mesh['y'], ax=ax,
                     cmap="RdBu", norm=norm, cbarlabel="Z-Offset")
     texts = annotate_heatmap(im, valfmt="{x:.4f}")
@@ -172,33 +171,44 @@ def plot_deflections(delta):
     ax[0].plot(delta['x'],
                delta['mesh'][:,-1],
                 '-',
-                color="#cccccc")
+                color="#c2d1ed")
     ax[0].plot(delta['x'],
                delta['mesh'][:,int(np.floor(delta['mesh'].shape[0]-1)/2)],
                 '-',
-                color="#aaaaaa")
+                color="#6d89bf")
 
     ax[0].plot(delta['x'],
                delta['mesh'][:,0],
                 '-',
-                color="#333333")
-
-    ax[0].set_title('X axis')
+                color="#1a376e")
+    ax[0].plot(delta['x'],
+               np.zeros(delta['x'].shape),
+                '--',
+                color="#dddddd")
 
     ax[1].plot(delta['y'],
                delta['mesh'][-1],
                 '-',
-                color="#cccccc")
+                color="#c2d1ed")
     ax[1].plot(delta['y'],
                delta['mesh'][int(np.floor(delta['mesh'].shape[1]-1)/2)],
                 '-',
-                color="#aaaaaa")
+                color="#6d89bf")
     ax[1].plot(delta['y'],
                delta['mesh'][0],
                 '-',
-                color="#333333")
+                color="#1a376e")
 
+    ax[1].plot(delta['y'],
+               np.zeros(delta['y'].shape),
+                '--',
+                color="#dddddd")
+
+    ax[0].set_title('X axis')
     ax[1].set_title('Y axis')
+
+    ax[0].set_ylim([-0.2, 0.2])
+    ax[1].set_ylim([-0.2, 0.2])
 
     return(fig)
 
