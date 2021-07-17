@@ -33,7 +33,6 @@ CHAMBER_CONFIG = "temperature_sensor chamber"
 MCU_Z_POS_RE = re.compile(r'(?P<mcu_z>(?<=stepper_z:)-*[0-9.]+)')
 DATA_FILENAME = "gantry_flex_test_%s_%s.csv" % (USER_ID,
     datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-last_measurement = datetime.now() - timedelta(minutes=MEASURE_INTERVAL)
 start_time = datetime.now() + timedelta(days=1)
 index = 0
 BASE_URL = BASE_URL.strip('/') # remove any errant "/" from the address
