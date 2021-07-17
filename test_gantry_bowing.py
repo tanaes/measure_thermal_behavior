@@ -165,7 +165,7 @@ def take_bed_mesh():
     mesh_received = False
     cmd = 'BED_MESH_CALIBRATE'
 
-    print("Taking bed mesh measurement...", end='')
+    print("Taking bed mesh measurement...", end='', flush=True)
     send_gcode_nowait(cmd)
 
     mesh = query_bed_mesh()
@@ -176,7 +176,7 @@ def query_bed_mesh(retries=5):
     url = BASE_URL + '/printer/objects/query?bed_mesh'
     mesh_received = False
     for attempt in range(retries):
-        print('.', end='')
+        print('.', end='', flush=True)
         resp = get(url).json()['result']
         mesh = resp['status']['bed_mesh']['probed_matrix']
         if mesh != [[]]:
