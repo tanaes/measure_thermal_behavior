@@ -170,7 +170,7 @@ def query_bed_mesh(retries=5):
     mesh_received = False
     for attempt in range(retries):
         resp = get(url).json()['result']
-        mesh = resp['probed_matrix']
+        mesh = resp['status']['bed_mesh']['probed_matrix']
         if mesh != [[]]:
             mesh_received = True
             return mesh
