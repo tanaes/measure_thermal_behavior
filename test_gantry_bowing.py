@@ -5,6 +5,7 @@ from time import sleep
 from requests import get, post
 import re
 import json
+from json.decoder import JSONDecodeError
 
 ######### META DATA #################
 # For data collection organizational purposes
@@ -108,8 +109,10 @@ def send_gcode(cmd='', retries=1, timeout=30):
             success = 'ok' in resp.json()['result']
         except KeyError:
             print("G-code command '%s', failed. Retry %i/%i" % (cmd, i+1, retries))
-        else:
+        except JSONDecodeError:
             print(resp)
+        else:
+            return True
     return False
 
 def set_bedtemp(t=0):
