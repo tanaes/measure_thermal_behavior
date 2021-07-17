@@ -20,7 +20,6 @@ BASE_URL = 'http://127.0.0.1'       # printer URL (e.g. http://192.168.1.15)
                                     # leave default if running locally
 BED_TEMPERATURE = 105               # bed temperature for measurements
 HE_TEMPERATURE = 100                # extruder temperature for measurements
-PREHEAT_TIME = 10                   # Min time to preheat before homing and QGL, in minutes
 MEASURE_INTERVAL = 1
 N_SAMPLES = 3
 HOT_DURATION = 2                   # time after bed temp reached to continue
