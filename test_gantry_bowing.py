@@ -250,8 +250,8 @@ def collect_datapoint(index):
     }
     return datapoint
 
-def measure(temps):
-    global last_measurement, index, start_time
+def measure():
+    global last_measurement, index, start_time, temps
     now = datetime.now()
     if (now - last_measurement) >= timedelta(minutes=MEASURE_INTERVAL):
         last_measurement = now
@@ -270,7 +270,7 @@ def measure(temps):
         print('Next measurement in %02is' % t_minus, end='\r', flush=True)
 
 def main():
-    global last_measurement, start_time
+    global last_measurement, start_time, temps
     metadata = gather_metadata()
     print("Starting!\nHoming...", end='')
     # Home all
@@ -285,7 +285,7 @@ def main():
 
     last_measurement = datetime.now()
 
-    print("Starting!\nHoming...", end='')
+    print("Homing...", end='')
     if send_gcode('G28'):
         print("DONE")
     else:
@@ -316,7 +316,7 @@ def main():
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION):
             break
-        temps = measure(temps)
+        measure()
         sleep(0.2)
 
     # Take hot mesh
