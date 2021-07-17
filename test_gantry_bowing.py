@@ -99,9 +99,9 @@ def write_metadata(meta):
                 dataout.write('# %s=%s\n' % (item, meta[section][item]))
         dataout.write('### METADATA END ###\n')
 
-def send_gcode(cmd='', retries=1):
+def send_gcode(cmd='', retries=1, timeout=30):
     url = BASE_URL + "/printer/gcode/script?script=%s" % cmd
-    resp = post(url)
+    resp = post(url, timeout=timeout)
     success = None
     for i in range(retries):
         try: 
@@ -136,7 +136,7 @@ def clear_bed_mesh():
 def take_bed_mesh():
     mesh_sent = False
     cmd = 'BED_MESH_CALIBRATE'
-    mesh_sent = send_gcode(cmd, retries=3)
+    send_gcode(cmd, retries=1, timeout=None)
     if not mesh_sent:
         raise RuntimeError("Could not calibrate bed.")
 
