@@ -27,7 +27,7 @@ N_SAMPLES = 3
 HOT_DURATION = 2                   # time after bed temp reached to continue
                                     # measuring, in hours
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
-QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL
+QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL; e.g. "QUAD_GANTRY_LEVEL" or None if no QGL.
 
 # chamber thermistor config name. Change to match your own, or "" if none
 # will also work with temperature_fan configs
@@ -142,6 +142,9 @@ def gantry_leveled():
     return resp['status']['quad_gantry_level']['applied']
 
 def qgl(retries=30):
+    if not QGL_CMD:
+        print("No QGL; skipping.")
+        return True
     if gantry_leveled():
         print("Gantry already level. ")
         return True
