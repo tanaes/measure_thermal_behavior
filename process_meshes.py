@@ -15,8 +15,8 @@ def import_mesh(mesh):
         n_y_points = len(probed_matrix)
         n_x_points = len(probed_matrix[0])
         
-        x_coords = np.linspace(mesh_min[0], mesh_max[0], n_x_points, float)
-        y_coords = np.linspace(mesh_min[1], mesh_max[1], n_y_points, float)
+        x_coords = np.round(np.linspace(mesh_min[0], mesh_max[0], n_x_points, float), decimals=1)
+        y_coords = np.round(np.linspace(mesh_min[1], mesh_max[1], n_y_points, float), decimals=1)
         mesh_points = np.array(probed_matrix, float)
         
         return {'x': x_coords, 'y':y_coords, 'mesh':mesh_points}
@@ -220,10 +220,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args.data[0])
     results = read_results_file(args.data[0])
-    mesh_ref = import_mesh(results['cold_mesh'])
-    mesh_test = import_mesh(results['hot_mesh'])
-    print(mesh_ref)
-    print(mesh_test)
+    mesh_ref = import_mesh(results['cold_mesh']['mesh'])
+    mesh_test = import_mesh(results['hot_mesh']['mesh'])
     delta = calc_mesh_delta(mesh_ref, mesh_test)
     meshplot = plot_mesh(delta)
     defplot = plot_deflections(delta)
