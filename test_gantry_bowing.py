@@ -109,7 +109,7 @@ def send_gcode_nowait(cmd=''):
     post(url)
     return True
 
-def send_gcode(cmd='', retries=1, timeout=30):
+def send_gcode(cmd='', retries=1):
     url = BASE_URL + "/printer/gcode/script?script=%s" % cmd
     resp = post(url, timeout=timeout)
     success = None
