@@ -143,7 +143,7 @@ def plot_mesh(mesh, title=''):
     fig, ax = plt.subplots()
     data = mesh['mesh']
     # absmax = max(abs(data.min()), abs(data.max()))
-    absmax = 0.1
+    absmax = 0.2
     norm = TwoSlopeNorm(vmin=-absmax, vcenter=0, vmax=absmax)
     im, cbar = heatmap(mesh['mesh'], mesh['x'], mesh['y'], ax=ax,
                     cmap="RdBu", norm=norm, cbarlabel="Z-Offset")
@@ -169,7 +169,7 @@ def plot_deflections(delta):
     plt.tight_layout()
 
     ax[0].plot(delta['x'],
-               delta['mesh'][:,-1],
+               delta['mesh'][-1],
                 '-',
                 color="#c2d1ed")
     ax[0].plot(delta['x'],
@@ -178,7 +178,7 @@ def plot_deflections(delta):
                 color="#6d89bf")
 
     ax[0].plot(delta['x'],
-               delta['mesh'][:,0],
+               delta['mesh'][0],
                 '-',
                 color="#1a376e")
     ax[0].plot(delta['x'],
@@ -187,7 +187,7 @@ def plot_deflections(delta):
                 color="#dddddd")
 
     ax[1].plot(delta['y'],
-               delta['mesh'][-1],
+               delta['mesh'][:,-1],
                 '-',
                 color="#c2d1ed")
     ax[1].plot(delta['y'],
@@ -195,7 +195,7 @@ def plot_deflections(delta):
                 '-',
                 color="#6d89bf")
     ax[1].plot(delta['y'],
-               delta['mesh'][0],
+               delta['mesh'][:,0],
                 '-',
                 color="#1a376e")
 
