@@ -341,7 +341,8 @@ def main():
     # write output
     output = {'metadata': metadata,
               'cold_mesh': cold_data,
-              'hot_mesh': hot_data}
+              'hot_mesh': hot_data,
+              'temp_data': temps}
 
     with open(DATA_FILENAME, "w") as out_file:
         json.dump(output, out_file, indent=4, sort_keys=True, default=str)
