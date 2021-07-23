@@ -1,9 +1,9 @@
 import json
+import sys
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
-import argparse
 from os.path import splitext, join
 
 def import_mesh(mesh):
@@ -80,6 +80,8 @@ def heatmap(data, row_labels, col_labels, ax=None,
     ax.tick_params(which="minor", bottom=False, left=False)
 
     return im, cbar
+
+
 
 def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
                      textcolors=["black", "white"],
@@ -173,7 +175,7 @@ def plot_deflections(delta):
                 '-',
                 color="#c2d1ed")
     ax[0].plot(delta['x'],
-               delta['mesh'][:,int(np.floor(delta['mesh'].shape[0]-1)/2)],
+               delta['mesh'][int(np.floor(delta['mesh'].shape[0]-1)/2)],
                 '-',
                 color="#6d89bf")
 
@@ -191,7 +193,7 @@ def plot_deflections(delta):
                 '-',
                 color="#c2d1ed")
     ax[1].plot(delta['y'],
-               delta['mesh'][int(np.floor(delta['mesh'].shape[1]-1)/2)],
+               delta['mesh'][:,int(np.floor(delta['mesh'].shape[1]-1)/2)],
                 '-',
                 color="#6d89bf")
     ax[1].plot(delta['y'],
@@ -212,22 +214,26 @@ def plot_deflections(delta):
 
     return(fig)
 
-parser = argparse.ArgumentParser(description='Plot mesh delta')
-parser.add_argument('data', metavar='combined output', nargs=1)
-
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    print(args.data[0])
-    results = read_results_file(args.data[0])
-    mesh_ref = import_mesh(results['cold_mesh']['mesh'])
-    mesh_test = import_mesh(results['hot_mesh']['mesh'])
-    delta = calc_mesh_delta(mesh_ref, mesh_test)
-    meshplot = plot_mesh(delta)
-    defplot = plot_deflections(delta)
+    args = sys.argv[1:]
+    print(len(args))
+    print(args)
+    for infile in args:
 
-    plot_basename = splitext(args.data[0])[0]
-    meshplot.savefig('.'.join([plot_basename, 'mesh.png']))
-    defplot.savefig('.'.join([plot_basename, 'deflection.png']))
+        results = read_results_file(infile)
+        mesh_ref = import_mesh(results['cold_mesh']['mesh'])
+        mesh_test = import_mesh(results['hot_mesh']['mesh'])
+        delta = calc_mesh_delta(mesh_ref, mesh_test)
+        meshplot = plot_mesh(delta)
+        preplot = plot_mesh(mesh_ref)
+        postplot = plot_mesh(mesh_test)
+        defplot = plot_deflections(delta)
+
+        plot_basename = splitext(infile)[0]
+        meshplot.savefig('.'.join([plot_basename, 'mesh.png']))
+        preplot.savefig('.'.join([plot_basename, 'premesh.png']))
+        postplot.savefig('.'.join([plot_basename, 'postmesh.png']))
+        defplot.savefig('.'.join([plot_basename, 'deflection.png']))
 
 
