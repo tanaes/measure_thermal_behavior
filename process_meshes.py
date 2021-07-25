@@ -2,6 +2,7 @@ import json
 import sys
 import numpy as np
 import matplotlib
+from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 from os.path import splitext, join
@@ -227,6 +228,48 @@ def plot_deflections(delta):
     return(fig)
 
 
+def plot_deflection_surface(delta):
+    fig, ax = plt.subplots(2)
+
+    plt.tight_layout()
+    for i in reversed(range(delta['mesh'].shape[0])):
+        xgrad = cm.get_cmap('Blues_r',
+                            delta['mesh'].shape[0] + 2)
+        ax[0].plot(delta['x'],
+                   delta['mesh'][i],
+                   '-',
+                   color=xgrad(i),
+                   alpha=1)
+    
+    for i in reversed(range(delta['mesh'].shape[1])):
+        ygrad = cm.get_cmap('Blues_r',
+                            delta['mesh'].shape[1] + 2)
+        ax[1].plot(delta['y'],
+                   delta['mesh'][:,i],
+                   '-',
+                   color=ygrad(i),
+                   alpha=0.8)
+        
+
+    ax[0].plot(delta['x'],
+               np.zeros(delta['x'].shape),
+               '--',
+               color="#dddddd")
+
+    ax[1].plot(delta['y'],
+               np.zeros(delta['y'].shape),
+               '--',
+               color="#dddddd")
+
+    ax[0].set_title('X axis')
+    ax[1].set_title('Y axis')
+
+    ax[0].set_ylim([-0.2, 0.2])
+    ax[1].set_ylim([-0.2, 0.2])
+
+    return(fig)
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     print(len(args))
@@ -241,11 +284,13 @@ if __name__ == "__main__":
         preplot = plot_mesh(mesh_ref)
         postplot = plot_mesh(mesh_test)
         defplot = plot_deflections(delta)
+        surfplot = plot_deflection_surface(delta)
 
         plot_basename = splitext(infile)[0]
         meshplot.savefig('.'.join([plot_basename, 'mesh.png']))
         preplot.savefig('.'.join([plot_basename, 'premesh.png']))
         postplot.savefig('.'.join([plot_basename, 'postmesh.png']))
         defplot.savefig('.'.join([plot_basename, 'deflection.png']))
+        surfplot.savefig('.'.join([plot_basename, 'surface.png']))
 
         plt.close('all')
