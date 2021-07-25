@@ -6,20 +6,32 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 from os.path import splitext, join
 
+
 def import_mesh(mesh):
-    if all([x in mesh.keys() for x in ['mesh_min', 'mesh_max', 'probed_matrix']]):
+    if all([x in mesh.keys() for x in ['mesh_min',
+                                       'mesh_max',
+                                       'probed_matrix']]):
         mesh_min = mesh['mesh_min']
         mesh_max = mesh['mesh_max']
         probed_matrix = mesh['probed_matrix']
-        
+
         n_y_points = len(probed_matrix)
         n_x_points = len(probed_matrix[0])
-        
-        x_coords = np.round(np.linspace(mesh_min[0], mesh_max[0], n_x_points, float), decimals=1)
-        y_coords = np.round(np.linspace(mesh_min[1], mesh_max[1], n_y_points, float), decimals=1)
+
+        x_coords = np.round(np.linspace(mesh_min[0],
+                                        mesh_max[0],
+                                        n_x_points,
+                                        float),
+                            decimals=1)
+        y_coords = np.round(np.linspace(mesh_min[1],
+                                        mesh_max[1],
+                                        n_y_points,
+                                        float),
+                            decimals=1)
         mesh_points = np.array(probed_matrix, float)
-        
-        return {'x': x_coords, 'y':y_coords, 'mesh':mesh_points}
+
+        return {'x': x_coords, 'y': y_coords, 'mesh': mesh_points}
+
 
 def heatmap(data, row_labels, col_labels, ax=None,
             cbar_kw={}, cbarlabel="", **kwargs):
@@ -82,9 +94,8 @@ def heatmap(data, row_labels, col_labels, ax=None,
     return im, cbar
 
 
-
 def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
-                     textcolors=["black", "white"],
+                     textcolors=["white", "black"],
                      threshold=None, **textkw):
     """
     A function to annotate a heatmap.
@@ -141,6 +152,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
 
     return texts
 
+
 def plot_mesh(mesh, title=''):
     fig, ax = plt.subplots()
     data = mesh['mesh']
@@ -148,66 +160,66 @@ def plot_mesh(mesh, title=''):
     absmax = 0.2
     norm = TwoSlopeNorm(vmin=-absmax, vcenter=0, vmax=absmax)
     im, cbar = heatmap(mesh['mesh'], mesh['x'], mesh['y'], ax=ax,
-                    cmap="RdBu", norm=norm, cbarlabel="Z-Offset")
+                       cmap="RdBu_r", norm=norm, cbarlabel="Z-Offset")
     texts = annotate_heatmap(im, valfmt="{x:.4f}")
     fig.tight_layout()
     plt.gca().invert_yaxis()
-    
+
     return(fig)
 
 
 def calc_mesh_delta(mesh_ref, mesh_test):
     delta = mesh_test['mesh'] - mesh_ref['mesh']
-    return {'x' : mesh_ref['x'], 'y' : mesh_ref['y'], 'mesh' : delta}
+    return {'x': mesh_ref['x'], 'y': mesh_ref['y'], 'mesh': delta}
+
 
 def read_results_file(results_fp):
     with open(results_fp, 'r') as f:
         results = json.load(f)
     return(results)
 
+
 def plot_deflections(delta):
     fig, ax = plt.subplots(2)
 
     plt.tight_layout()
 
-    ax[0].plot(delta['x'],
-               delta['mesh'][-1],
-                '-',
-                color="#c2d1ed")
-    ax[0].plot(delta['x'],
-               delta['mesh'][int(np.floor(delta['mesh'].shape[0]-1)/2)],
-                '-',
-                color="#6d89bf")
+    x_mid = delta['mesh'][int(np.floor(delta['mesh'].shape[0]-1)/2)]
+    x_deflect = - x_mid - min(-x_mid)
+
+    y_min = delta['mesh'][:, 0]
+    y_min_deflect = - y_min - min(-y_min)
+
+    y_max = delta['mesh'][:, -1]
+    y_max_deflect = - y_max - min(-y_max)
 
     ax[0].plot(delta['x'],
-               delta['mesh'][0],
-                '-',
-                color="#1a376e")
+               x_deflect,
+               '-',
+               color="#6d89bf")
+
     ax[0].plot(delta['x'],
                np.zeros(delta['x'].shape),
-                '--',
-                color="#dddddd")
+               '--',
+               color="#dddddd")
 
     ax[1].plot(delta['y'],
-               delta['mesh'][:,-1],
-                '-',
-                color="#c2d1ed")
+               y_max_deflect,
+               '-',
+               color="#c2d1ed")
+
     ax[1].plot(delta['y'],
-               delta['mesh'][:,int(np.floor(delta['mesh'].shape[1]-1)/2)],
-                '-',
-                color="#6d89bf")
-    ax[1].plot(delta['y'],
-               delta['mesh'][:,0],
-                '-',
-                color="#1a376e")
+               y_min_deflect,
+               '-',
+               color="#1a376e")
 
     ax[1].plot(delta['y'],
                np.zeros(delta['y'].shape),
-                '--',
-                color="#dddddd")
+               '--',
+               color="#dddddd")
 
-    ax[0].set_title('X axis')
-    ax[1].set_title('Y axis')
+    ax[0].set_title('Imputed deflection: X axis')
+    ax[1].set_title('Y axis (dark left light right)')
 
     ax[0].set_ylim([-0.2, 0.2])
     ax[1].set_ylim([-0.2, 0.2])
@@ -236,4 +248,4 @@ if __name__ == "__main__":
         postplot.savefig('.'.join([plot_basename, 'postmesh.png']))
         defplot.savefig('.'.join([plot_basename, 'deflection.png']))
 
-
+        plt.close('all')
