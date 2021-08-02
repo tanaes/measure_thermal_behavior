@@ -293,12 +293,12 @@ def collect_datapoint(index):
         set_hetemp()
         err = 'MEASURE_GCODE (%s) failed. Stopping.' % MEASURE_GCODE
         raise RuntimeError(err)
-    stamp = datetime.now()
+    stamp = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
     pos = query_mcu_z_pos()
     t_sensors = query_temp_sensors()
     datapoint = {
-        index: {
-            'timestamp': stamp.strftime("%Y/%m/%d-%H:%M:%S"),
+        stamp: {
+            'sample_index': index,
             'mcu_z': pos,
             **t_sensors
             }
@@ -321,7 +321,7 @@ def measure():
             print('%i/%i...' % (n+1, N_SAMPLES),
                   end='',
                   flush=True)
-            temps.append(collect_datapoint(index))
+            temps.update(collect_datapoint(index))
         index += 1
         print('DONE', " "*20)
     else:
@@ -376,7 +376,7 @@ def main():
     print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION * 60))
     # wait for heat soak
 
-    temps = []
+    temps = {}
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION):
