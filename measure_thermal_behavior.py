@@ -223,7 +223,7 @@ def query_temp_sensors():
         extra_t_str += '&%s' % CHAMBER_SENSOR
     if FRAME_SENSOR:
         extra_t_str += '&%s' % FRAME_SENSOR
-    if EXTRA_SENSORS != {}:
+    if EXTRA_SENSORS:
         extra_t_str += '&%s' % '&'.join(EXTRA_SENSORS.values())
 
     base_t_str = 'extruder&heater_bed'
@@ -275,7 +275,6 @@ def query_mcu_z_pos():
 
 
 def wait_for_bedtemp():
-    global start_time
     at_temp = False
     print('Heating started')
     while(1):
@@ -283,7 +282,6 @@ def wait_for_bedtemp():
         if temps['bed_temp'] >= BED_TEMPERATURE-0.5:
             at_temp = True
             break
-    start_time = datetime.now()
     print('\nBed temp reached')
 
 
@@ -362,6 +360,7 @@ def main():
     set_hetemp(HE_TEMPERATURE)
 
     wait_for_bedtemp()
+    start_time = datetime.now()
 
     # Take cold mesh
     take_bed_mesh()
@@ -374,9 +373,9 @@ def main():
                  'mesh': cold_mesh}
 
     print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION * 60))
-    # wait for heat soak
 
     temps = {}
+    # wait for heat soak
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION):
@@ -399,7 +398,6 @@ def main():
     print('Hot measurements complete!')
     set_bedtemp()
 
-    start_time = datetime.now()
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION+COOL_DURATION):
