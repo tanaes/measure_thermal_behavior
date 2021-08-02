@@ -238,12 +238,12 @@ def query_temp_sensors():
         frame_current = -180.
 
     extra_temps = {}
-    if EXTRA_SENSORS != {}:
-        try:
-            for sensor in EXTRA_SENSORS:
+    if EXTRA_SENSORS:
+        for sensor in EXTRA_SENSORS:
+            try:
                 extra_temps[sensor] = resp[EXTRA_SENSORS[sensor]]['temperature']
-        except KeyError:
-            extra_temps[sensor] = -180.
+            except KeyError:
+                extra_temps[sensor] = -180.
 
     bed_current = resp['heater_bed']['temperature']
     bed_target = resp['heater_bed']['target']
