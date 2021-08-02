@@ -115,6 +115,21 @@ def write_metadata(meta):
         dataout.write('### METADATA END ###\n')
 
 
+def query_xy_middle():
+    resp = get(BASE_URL + '/printer/objects/query?configfile').json()
+    config = resp['result']['status']['configfile']['settings']
+
+    x_min = config['stepper_x']['position_min']
+    x_max = config['stepper_x']['position_max']
+    y_min = config['stepper_y']['position_min']
+    y_max = config['stepper_y']['position_max']
+
+    x_mid = x_max - (x_max-x_min)/2
+    y_mid = y_max - (y_max-y_min)/2
+
+    return [x_mid, y_mid]
+
+
 def send_gcode_nowait(cmd=''):
     url = BASE_URL + "/printer/gcode/script?script=%s" % cmd
     post(url)
@@ -135,6 +150,14 @@ def send_gcode(cmd='', retries=1):
         else:
             return True
     return False
+
+
+def park_head_center():
+    xy_coords = query_xy_middle()
+    send_gcode_nowait("G1 Z10 F300")
+
+    park_cmd = "G1 X%.1f Y%.1f F18000" % (xy_coords[0], xy_coords[1])
+    send_gcode_nowait(park_cmd)
 
 
 def set_bedtemp(t=0):
@@ -322,6 +345,7 @@ def measure():
             temps.update(collect_datapoint(index))
         index += 1
         print('DONE', " "*20)
+        park_head_center()
     else:
         t_minus = ((last_measurement +
                     timedelta(minutes=MEASURE_INTERVAL))-now).seconds
@@ -359,6 +383,7 @@ def main():
     set_bedtemp(BED_TEMPERATURE)
     set_hetemp(HE_TEMPERATURE)
 
+    park_head_center()
     wait_for_bedtemp()
     start_time = datetime.now()
 
