@@ -27,17 +27,19 @@ MEASURE_INTERVAL = 1
 N_SAMPLES = 3
 HOT_DURATION = 3                    # time after bed temp reached to continue
                                     # measuring, in hours
-COOL_DURATION = 2                   # hours to continue measuring after heaters
+COOL_DURATION = 0                   # hours to continue measuring after heaters
                                     # are disabled
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL; e.g. "QUAD_GANTRY_LEVEL" or None if no QGL.
 
+# Full config section name of the frame temperature sensor
+FRAME_SENSOR = "temperature_sensor frame"
 # chamber thermistor config name. Change to match your own, or "" if none
 # will also work with temperature_fan configs
 CHAMBER_SENSOR = "temperature_sensor chamber"
-FRAME_SENSOR = "temperature_sensor frame"
-EXTRA_SENSORS = {"frame1_t": "temperature_sensor frame1",
-                 "frame2_t": "temperature_sensor frame2"}
+# Extra temperature sensors to collect. Use same format as above but seperate
+# quoted names with commas (if more than one).
+EXTRA_SENSORS = {}
 
 #####################################
 
