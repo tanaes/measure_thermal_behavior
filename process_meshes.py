@@ -155,7 +155,8 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
 
 
 def plot_mesh(mesh, title='', subtitle=''):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8,8))
+
     data = mesh['mesh']
     # absmax = max(abs(data.min()), abs(data.max()))
     absmax = 0.2
