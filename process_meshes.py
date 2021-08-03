@@ -154,7 +154,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     return texts
 
 
-def plot_mesh(mesh, title=''):
+def plot_mesh(mesh, title='', subtitle=''):
     fig, ax = plt.subplots()
     data = mesh['mesh']
     # absmax = max(abs(data.min()), abs(data.max()))
@@ -163,9 +163,10 @@ def plot_mesh(mesh, title=''):
     im, cbar = heatmap(mesh['mesh'], mesh['x'], mesh['y'], ax=ax,
                        cmap="RdBu_r", norm=norm, cbarlabel="Z-Offset")
     texts = annotate_heatmap(im, valfmt="{x:.4f}")
-    fig.tight_layout()
     plt.gca().invert_yaxis()
-
+    plt.suptitle(title, fontsize=18)
+    plt.title(subtitle, fontsize=10)
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     return(fig)
 
 
@@ -180,10 +181,10 @@ def read_results_file(results_fp):
     return(results)
 
 
-def plot_deflections(delta):
+def plot_deflections(delta, title=''):
     fig, ax = plt.subplots(2)
 
-    plt.tight_layout()
+    fig.tight_layout(rect=[0, 0.03, 1, 0.85])
 
     x_mid = delta['mesh'][int(np.floor(delta['mesh'].shape[0]-1)/2)]
     x_deflect = - x_mid - min(-x_mid)
@@ -225,13 +226,15 @@ def plot_deflections(delta):
     ax[0].set_ylim([-0.2, 0.2])
     ax[1].set_ylim([-0.2, 0.2])
 
+    plt.suptitle(title, fontsize=12)
+
     return(fig)
 
 
-def plot_deflection_surface(delta):
+def plot_deflection_surface(delta, title=''):
     fig, ax = plt.subplots(2)
 
-    plt.tight_layout()
+    fig.tight_layout(rect=[0, 0.03, 1, 0.85])
     for i in reversed(range(delta['mesh'].shape[0])):
         xgrad = cm.get_cmap('Blues_r',
                             delta['mesh'].shape[0] + 2)
@@ -261,12 +264,13 @@ def plot_deflection_surface(delta):
                '--',
                color="#dddddd")
 
-    ax[0].set_title('X axis')
-    ax[1].set_title('Y axis')
+    ax[0].set_title('X axis surface plot')
+    ax[1].set_title('Y axis surface plot')
 
     ax[0].set_ylim([-0.2, 0.2])
     ax[1].set_ylim([-0.2, 0.2])
 
+    plt.suptitle(title, fontsize=12)
     return(fig)
 
 
@@ -277,14 +281,33 @@ if __name__ == "__main__":
     for infile in args:
 
         results = read_results_file(infile)
+
+        user = results['metadata']['user']['id']
+        printer = results['metadata']['user']['printer']
+        backers = results['metadata']['user']['backers']
+        x_rails = results['metadata']['user']['x_rails']
+
+        subtitle = '{user}: {printer}\n{backers}, {x_rails}'.format(user=user,
+                                                                    printer=printer,
+                                                                    backers=backers,
+                                                                    x_rails=x_rails)
+
         mesh_ref = import_mesh(results['cold_mesh']['mesh'])
         mesh_test = import_mesh(results['hot_mesh']['mesh'])
         delta = calc_mesh_delta(mesh_ref, mesh_test)
-        meshplot = plot_mesh(delta)
-        preplot = plot_mesh(mesh_ref)
-        postplot = plot_mesh(mesh_test)
-        defplot = plot_deflections(delta)
-        surfplot = plot_deflection_surface(delta)
+        meshplot = plot_mesh(delta,
+                             title='Difference',
+                             subtitle=subtitle)
+        preplot = plot_mesh(mesh_ref,
+                             title='Cold frame mesh',
+                             subtitle=subtitle)
+        postplot = plot_mesh(mesh_test,
+                             title='Hot frame mesh',
+                             subtitle=subtitle)
+        defplot = plot_deflections(delta,
+                                   title=subtitle)
+        surfplot = plot_deflection_surface(delta,
+                                           title=subtitle)
 
         plot_basename = splitext(infile)[0]
         meshplot.savefig('.'.join([plot_basename, 'mesh.png']))
