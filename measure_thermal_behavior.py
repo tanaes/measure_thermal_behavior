@@ -115,6 +115,21 @@ def write_metadata(meta):
         dataout.write('### METADATA END ###\n')
 
 
+def query_xy_middle():
+    resp = get(BASE_URL + '/printer/objects/query?configfile').json()
+    config = resp['result']['status']['configfile']['settings']
+
+    x_min = config['stepper_x']['position_min']
+    x_max = config['stepper_x']['position_max']
+    y_min = config['stepper_y']['position_min']
+    y_max = config['stepper_y']['position_max']
+
+    x_mid = x_max - (x_max-x_min)/2
+    y_mid = y_max - (y_max-y_min)/2
+
+    return [x_mid, y_mid]
+
+
 def send_gcode_nowait(cmd=''):
     url = BASE_URL + "/printer/gcode/script?script=%s" % cmd
     post(url)
@@ -135,6 +150,14 @@ def send_gcode(cmd='', retries=1):
         else:
             return True
     return False
+
+
+def park_head_center():
+    xy_coords = query_xy_middle()
+    send_gcode_nowait("G1 Z10 F300")
+
+    park_cmd = "G1 X%.1f Y%.1f F18000" % (xy_coords[0], xy_coords[1])
+    send_gcode_nowait(park_cmd)
 
 
 def set_bedtemp(t=0):
@@ -223,7 +246,7 @@ def query_temp_sensors():
         extra_t_str += '&%s' % CHAMBER_SENSOR
     if FRAME_SENSOR:
         extra_t_str += '&%s' % FRAME_SENSOR
-    if EXTRA_SENSORS != {}:
+    if EXTRA_SENSORS:
         extra_t_str += '&%s' % '&'.join(EXTRA_SENSORS.values())
 
     base_t_str = 'extruder&heater_bed'
@@ -238,12 +261,12 @@ def query_temp_sensors():
         frame_current = -180.
 
     extra_temps = {}
-    if EXTRA_SENSORS != {}:
-        try:
-            for sensor in EXTRA_SENSORS:
+    if EXTRA_SENSORS:
+        for sensor in EXTRA_SENSORS:
+            try:
                 extra_temps[sensor] = resp[EXTRA_SENSORS[sensor]]['temperature']
-        except KeyError:
-            extra_temps[sensor] = -180.
+            except KeyError:
+                extra_temps[sensor] = -180.
 
     bed_current = resp['heater_bed']['temperature']
     bed_target = resp['heater_bed']['target']
@@ -275,7 +298,6 @@ def query_mcu_z_pos():
 
 
 def wait_for_bedtemp():
-    global start_time
     at_temp = False
     print('Heating started')
     while(1):
@@ -283,7 +305,6 @@ def wait_for_bedtemp():
         if temps['bed_temp'] >= BED_TEMPERATURE-0.5:
             at_temp = True
             break
-    start_time = datetime.now()
     print('\nBed temp reached')
 
 
@@ -324,6 +345,7 @@ def measure():
             temps.update(collect_datapoint(index))
         index += 1
         print('DONE', " "*20)
+        park_head_center()
     else:
         t_minus = ((last_measurement +
                     timedelta(minutes=MEASURE_INTERVAL))-now).seconds
@@ -361,7 +383,9 @@ def main():
     set_bedtemp(BED_TEMPERATURE)
     set_hetemp(HE_TEMPERATURE)
 
+    park_head_center()
     wait_for_bedtemp()
+    start_time = datetime.now()
 
     # Take cold mesh
     take_bed_mesh()
@@ -374,9 +398,9 @@ def main():
                  'mesh': cold_mesh}
 
     print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION * 60))
-    # wait for heat soak
 
     temps = {}
+    # wait for heat soak
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION):
@@ -399,7 +423,6 @@ def main():
     print('Hot measurements complete!')
     set_bedtemp()
 
-    start_time = datetime.now()
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION+COOL_DURATION):
