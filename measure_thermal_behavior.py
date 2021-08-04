@@ -117,6 +117,16 @@ def write_metadata(meta):
                 dataout.write('# %s=%s\n' % (item, meta[section][item]))
         dataout.write('### METADATA END ###\n')
 
+def query_axis_bounds(axis):
+    resp = get(BASE_URL + '/printer/objects/query?configfile').json()
+    config = resp['result']['status']['configfile']['settings']
+
+    stepper = 'stepper_%s' % axis
+
+    axis_min = config[stepper]['position_min']
+    axis_max = config[stepper]['position_max']
+
+    return(axis_min, axis_max) 
 
 def query_xy_middle():
     resp = get(BASE_URL + '/printer/objects/query?configfile').json()
@@ -160,6 +170,19 @@ def park_head_center():
     send_gcode_nowait("G1 Z10 F300")
 
     park_cmd = "G1 X%.1f Y%.1f F18000" % (xy_coords[0], xy_coords[1])
+    send_gcode_nowait(park_cmd)
+
+
+def park_head_high():
+    xmin, xmax = query_axis_bounds('x')
+    ymin, ymax = query_axis_bounds('y')
+    zmin, zmax = query_axis_bounds('z')
+
+    xpark = xmax
+    ypark = ymax
+    zpark = zmax * 0.8
+
+    park_cmd = "G1 X%.1f Y%.1f Z%.1f F1000" % (xpark, ypark, zpark)
     send_gcode_nowait(park_cmd)
 
 
@@ -386,7 +409,7 @@ def main():
     set_bedtemp(BED_TEMPERATURE)
     set_hetemp(HE_TEMPERATURE)
 
-    park_head_center()
+    park_head_high()
     wait_for_bedtemp()
     start_time = datetime.now()
 
