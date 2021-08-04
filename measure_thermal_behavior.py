@@ -31,6 +31,7 @@ COOL_DURATION = 0                   # hours to continue measuring after heaters
                                     # are disabled
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL; e.g. "QUAD_GANTRY_LEVEL" or None if no QGL.
+MESH_CMD = "BED_MESH_CALIBRATE"
 
 # Full config section name of the frame temperature sensor
 FRAME_SENSOR = "temperature_sensor frame"
@@ -215,7 +216,7 @@ def clear_bed_mesh():
 
 def take_bed_mesh():
     mesh_received = False
-    cmd = 'BED_MESH_CALIBRATE'
+    cmd = MESH_CMD
 
     print("Taking bed mesh measurement...", end='', flush=True)
     send_gcode_nowait(cmd)
