@@ -292,14 +292,20 @@ if __name__ == "__main__":
                                                                     printer=printer,
                                                                     backers=backers,
                                                                     x_rails=x_rails)
-
+        premesh = True
+        try:
+            mesh_pre = import_mesh(results['pre_mesh']['mesh'])
+        except KeyError:
+            premesh = False
         mesh_ref = import_mesh(results['cold_mesh']['mesh'])
         mesh_test = import_mesh(results['hot_mesh']['mesh'])
         delta = calc_mesh_delta(mesh_ref, mesh_test)
+
+
         meshplot = plot_mesh(delta,
                              title='Difference',
                              subtitle=subtitle)
-        preplot = plot_mesh(mesh_ref,
+        coldplot = plot_mesh(mesh_ref,
                              title='Cold frame mesh',
                              subtitle=subtitle)
         postplot = plot_mesh(mesh_test,
@@ -312,9 +318,20 @@ if __name__ == "__main__":
 
         plot_basename = splitext(infile)[0]
         meshplot.savefig('.'.join([plot_basename, 'mesh.png']))
-        preplot.savefig('.'.join([plot_basename, 'premesh.png']))
+        coldplot.savefig('.'.join([plot_basename, 'coldmesh.png']))
         postplot.savefig('.'.join([plot_basename, 'postmesh.png']))
         defplot.savefig('.'.join([plot_basename, 'deflection.png']))
         surfplot.savefig('.'.join([plot_basename, 'surface.png']))
 
+        if premesh:
+            preplot = plot_mesh(mesh_pre,
+                                title='Cold bed mesh',
+                                subtitle=subtitle)
+            bed_delta = calc_mesh_delta(mesh_pre, mesh_ref)
+            bedplot = meshplot = plot_mesh(bed_delta,
+                                           title='Bed heatup diff',
+                                           subtitle=subtitle)
+            preplot.savefig('.'.join([plot_basename, 'bed_coldmesh.png']))
+            bedplot.savefig('.'.join([plot_basename, 'bed_diffmesh.png']))
+            
         plt.close('all')

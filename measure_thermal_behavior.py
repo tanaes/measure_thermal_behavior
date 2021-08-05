@@ -29,6 +29,7 @@ HOT_DURATION = 3                    # time after bed temp reached to continue
                                     # measuring, in hours
 COOL_DURATION = 0                   # hours to continue measuring after heaters
                                     # are disabled
+SOAK_TIME = 5                       # minutes to wait for bed to heatsoak after reaching temp
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL; e.g. "QUAD_GANTRY_LEVEL" or None if no QGL.
 MESH_CMD = "BED_MESH_CALIBRATE"
@@ -40,7 +41,8 @@ FRAME_SENSOR = "temperature_sensor frame"
 CHAMBER_SENSOR = "temperature_sensor chamber"
 # Extra temperature sensors to collect. Use same format as above but seperate
 # quoted names with commas (if more than one).
-EXTRA_SENSORS = {}
+EXTRA_SENSORS = {"temperature_sensor frame1",
+                 "temperature_sensor frame2"}
 
 #####################################
 
@@ -323,13 +325,12 @@ def query_mcu_z_pos():
     return None
 
 
-def wait_for_bedtemp():
-    at_temp = False
+def wait_for_bedtemp(soak_time=5):
     print('Heating started')
     while(1):
         temps = query_temp_sensors()
         if temps['bed_temp'] >= BED_TEMPERATURE-0.5:
-            at_temp = True
+            sleep(soak_time*60)
             break
     print('\nBed temp reached')
 
@@ -406,11 +407,25 @@ def main():
 
     send_gcode('SET_FRAME_COMP enable=0')
 
+    # Take preheat mesh
+    take_bed_mesh()
+    pre_time = datetime.now()
+    pre_mesh = query_bed_mesh()
+    pre_temps = query_temp_sensors()
+
+    pre_data = {'time': pre_time,
+                'temps': pre_temps,
+                'mesh': pre_mesh}
+
     set_bedtemp(BED_TEMPERATURE)
     set_hetemp(HE_TEMPERATURE)
 
+    temps = {}
+    # wait for heat soak
+
     park_head_high()
-    wait_for_bedtemp()
+    wait_for_bedtemp(soak_time=SOAK_TIME)
+
     start_time = datetime.now()
 
     # Take cold mesh
@@ -425,8 +440,6 @@ def main():
 
     print('Cold mesh taken, waiting for %s minutes' % (HOT_DURATION * 60))
 
-    temps = {}
-    # wait for heat soak
     while(1):
         now = datetime.now()
         if (now - start_time) >= timedelta(hours=HOT_DURATION):
@@ -458,6 +471,7 @@ def main():
 
     # write output
     output = {'metadata': metadata,
+              'pre_mesh': pre_data,
               'cold_mesh': cold_data,
               'hot_mesh': hot_data,
               'temp_data': temps}
