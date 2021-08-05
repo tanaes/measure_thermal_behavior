@@ -41,8 +41,8 @@ FRAME_SENSOR = "temperature_sensor frame"
 CHAMBER_SENSOR = "temperature_sensor chamber"
 # Extra temperature sensors to collect. Use same format as above but seperate
 # quoted names with commas (if more than one).
-EXTRA_SENSORS = {"temperature_sensor frame1",
-                 "temperature_sensor frame2"}
+EXTRA_SENSORS = {"frame1": "temperature_sensor frame1",
+                 "z_switch": "temperature_sensor z_switch"}
 
 #####################################
 
