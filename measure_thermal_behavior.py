@@ -330,6 +330,7 @@ def wait_for_bedtemp(soak_time=5):
     while(1):
         temps = query_temp_sensors()
         if temps['bed_temp'] >= BED_TEMPERATURE-0.5:
+            print("Reached temp, heat soaking bed...")
             sleep(soak_time*60)
             break
     print('\nBed temp reached')
