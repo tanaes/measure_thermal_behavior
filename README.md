@@ -16,7 +16,6 @@ First, download the script `measure_thermal_behavior.py` to your printer's Pi. M
 You'll need to edit the script (please use a vanilla text editer, such as Nano, that doesn't fuck with line endings) to include parameters appropriate for your printer. Please also fill in the `META DATA` section - this will help us find patterns across printer configurations!
 
 ```
-
 ######### META DATA #################
 # For data collection organizational purposes
 USER_ID = ''            # e.g. Discord handle
@@ -40,6 +39,7 @@ HOT_DURATION = 3                    # time after bed temp reached to continue
                                     # measuring, in hours
 COOL_DURATION = 0                   # hours to continue measuring after heaters
                                     # are disabled
+SOAK_TIME = 5                       # minutes to wait for bed to heatsoak after reaching temp
 MEASURE_GCODE = 'G28 Z'             # G-code called on repeated measurements, single line/macro only
 QGL_CMD = "QUAD_GANTRY_LEVEL"       # command for QGL; e.g. "QUAD_GANTRY_LEVEL" or None if no QGL.
 MESH_CMD = "BED_MESH_CALIBRATE"
@@ -51,15 +51,15 @@ FRAME_SENSOR = "temperature_sensor frame"
 CHAMBER_SENSOR = "temperature_sensor chamber"
 # Extra temperature sensors to collect. Use same format as above but seperate
 # quoted names with commas (if more than one).
-EXTRA_SENSORS = {"temperature_sensor frame1",
-                 "temperature_sensor frame2"}
+EXTRA_SENSORS = {"frame1": "temperature_sensor frame1",
+                 "z_switch": "temperature_sensor z_switch"}
 
 #####################################
 ```
 
 Note that if you want to calculate your printers frame expansion coefficient, you will need to include a frame temperature sensor definition.
 
-If you haven't already, copy the modified `test_gantry_bowing.py` to the Pi running Klipper/Moonraker.
+If you haven't already, copy the modified `measure_thermal_behavior.py` to the Pi running Klipper/Moonraker.
 
 ## Modify printer config
 
@@ -123,11 +123,11 @@ For accurate results, ensure the *entire* printer is at ambient temp. It can tak
 
 Run the script with Python3:
 
-`python3 test_gantry_bowing.py`
+`python3 measure_thermal_behavior.py`
 
 You may want to run it using `nohup` so that closing your ssh connection doesn't kill the process:
 
-`nohup python3 test_gantry_bowing.py > out.txt &`
+`nohup python3 measure_thermal_behavior.py > out.txt &`
 
 The script will run for about 3 hours. It will home, QGL, home again, then heat the bed up.
 
