@@ -283,9 +283,11 @@ def query_temp_sensors():
     resp = get(url).json()['result']['status']
     try:
         chamber_current = resp[CHAMBER_SENSOR]['temperature']
-        frame_current = resp[FRAME_SENSOR]['temperature']
     except KeyError:
         chamber_current = -180.
+    try:
+        frame_current = resp[FRAME_SENSOR]['temperature']
+    except KeyError:
         frame_current = -180.
 
     extra_temps = {}
