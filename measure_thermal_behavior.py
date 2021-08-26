@@ -71,8 +71,8 @@ def gather_metadata():
             gear_ratio_conf = config_z['gear_ratio']
             if type(gear_ratio_conf) is string:
                 gear_ratio_conf = gear_ratio_conf.split(':')             
-            gear_ratio = float(gear_ratio_conf[0])
-            for reduction in gear_ratio_conf[1:]:
+            gear_ratio = float(gear_ratio_conf[0][0])
+            for reduction in gear_ratio_conf[0][1:]:
                 gear_ratio = gear_ratio/float(reduction)
         else:
             gear_ratio = 1.
