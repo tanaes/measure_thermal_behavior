@@ -68,8 +68,12 @@ def gather_metadata():
         steps_per = config_z['full_steps_per_rotation']
         micro = config_z['microsteps']
         if 'gear_ratio' in config_z.keys():
-            gear_ratio_conf = config_z['gear_ratio'].split(':')
-            gear_ratio = float(gear_ratio_conf[0])/float(gear_ratio_conf[1])
+            gear_ratio_conf = config_z['gear_ratio']
+            if type(gear_ratio_conf) is string:
+                gear_ratio_conf = gear_ratio_conf.split(':')             
+            gear_ratio = float(gear_ratio_conf[0][0])
+            for reduction in gear_ratio_conf[0][1:]:
+                gear_ratio = gear_ratio/float(reduction)
         else:
             gear_ratio = 1.
         step_distance = (rot_dist / (micro * steps_per))/gear_ratio
