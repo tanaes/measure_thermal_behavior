@@ -19,7 +19,7 @@ NOTES = ''              # anything note-worthy about this particular run,
 #####################################
 
 ######### CONFIGURATION #############
-BASE_URL = 'http://127.0.0.1'       # printer URL (e.g. http://192.168.1.15)
+BASE_URL = 'http://127.0.0.1:7125'  # printer URL (e.g. http://192.168.1.15)
                                     # leave default if running locally
 BED_TEMPERATURE = 105               # bed temperature for measurements
 HE_TEMPERATURE = 100                # extruder temperature for measurements
