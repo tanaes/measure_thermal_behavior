@@ -157,7 +157,7 @@ Then, you can use pip via python3 to install the plotting script dependencies us
 
 Finally, to generate the plots, just call:
 
-`process_meshes.py thermal_quant_{}.json`.
+`python3 process_meshes.py thermal_quant_{}.json`.
 
 You can include as many json-formatted datafiles as you want as positional arguments.
 
